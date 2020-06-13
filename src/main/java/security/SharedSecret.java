@@ -49,7 +49,7 @@ public class SharedSecret {
 
             return sharedSecret.getBytes();
 
-        } catch (IOException ex) {
+        } catch (IOException | NullPointerException ex) {
             Logger.getLogger(SharedSecret.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("ERROR LOADING THE SHAREDSECRET FILE");
         }
