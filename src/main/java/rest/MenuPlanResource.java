@@ -56,10 +56,9 @@ public class MenuPlanResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("user")
+    @RolesAllowed({"user", "admin"})
     public void deleteMenuPlan(@PathParam("id") int id) {
-        String username = securityContext.getUserPrincipal().getName();
-        facade.DeleteMenuPlan(username, id);
+        facade.DeleteMenuPlan(id);
     }
 
     @POST

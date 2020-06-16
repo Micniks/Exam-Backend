@@ -12,6 +12,10 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQuery(name = "Ingredient.deleteAllRows", query = "DELETE from Ingredient")
+/*
+ * As the assignment suggested, I have made an entity class for the ingredients
+ * to easier save the shoppinglists of menu plans
+ */
 public class Ingredient implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -19,6 +23,10 @@ public class Ingredient implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /* 
+     * If I were to speak with the product owner, I would recommend 
+     * adding measurement units to the external api for user friendliness
+    */
     private int amount;
     private String name;
     @ManyToOne

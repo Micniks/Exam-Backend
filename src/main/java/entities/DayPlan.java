@@ -16,10 +16,12 @@ public class DayPlan implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private int numberOfServings;
+    
+    //As a interpertation choice from the domain model, I save the recipe in the form of ID and name
     private int recipeID;
     private String recipeName;
-    private int numberOfServings;
-
+    
     @ManyToOne
     private MenuPlan menuPlan;
 

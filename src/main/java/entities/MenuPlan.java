@@ -30,6 +30,11 @@ public class MenuPlan implements Serializable {
     @OneToMany(mappedBy = "menuPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingredient> shoppingList = new ArrayList();
 
+    
+    /*
+     * I have added this attribute for user friendliness, 
+     * in order to easier manage between menu plans
+    */
     private String menuName;
 
     public MenuPlan() {
