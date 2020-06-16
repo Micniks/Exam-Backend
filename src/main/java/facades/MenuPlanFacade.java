@@ -75,8 +75,8 @@ public class MenuPlanFacade {
             em.getTransaction().begin();
             
             MenuPlan menuPlan = em.find(MenuPlan.class, menuPlanID);
-            User user = menuPlan.getUser();
             if (Objects.nonNull(menuPlan)) {
+            User user = menuPlan.getUser();
                 if (user.getMenuPlans().contains(menuPlan)) {
                     user.getMenuPlans().remove(menuPlan);
                 }
