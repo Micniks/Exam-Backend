@@ -151,8 +151,7 @@ public class MenuPlanFacadeTest {
         int menuPlanID = menuPlan.getId();
         int amountOfDayPlans = menuPlan.getDayPlans().size();
         int amountofIngredients = menuPlan.getShoppingList().size();
-        User user = menuPlan.getUser();
-        facade.DeleteMenuPlan(user.getUserName(), menuPlan.getId());
+        facade.DeleteMenuPlan(menuPlan.getId());
 
         EntityManager em = emf.createEntityManager();
         try {
@@ -184,8 +183,7 @@ public class MenuPlanFacadeTest {
     @Test
     public void testDeleteMenuPlan_EmptyMenuPlan() {
         MenuPlan menuPlan = m1;
-        User user = menuPlan.getUser();
-        facade.DeleteMenuPlan(user.getUserName(), menuPlan.getId());
+        facade.DeleteMenuPlan(menuPlan.getId());
         assertTrue(menuPlan.getShoppingList().isEmpty());
         assertTrue(menuPlan.getDayPlans().isEmpty());
 
@@ -204,8 +202,7 @@ public class MenuPlanFacadeTest {
 
     @Test
     public void testDeleteMenuPlan_NotFound() {
-        User user = u1;
-        facade.DeleteMenuPlan(user.getUserName(), highestMenuPlanID + 10);
+        facade.DeleteMenuPlan(highestMenuPlanID + 10);
 
         EntityManager em = emf.createEntityManager();
         try {
