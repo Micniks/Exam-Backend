@@ -57,16 +57,23 @@ public class MenuPlanFacadeTest {
     public void setUp() {
         EntityManager em = emf.createEntityManager();
         try {
+
             em.getTransaction().begin();
             em.createNamedQuery("Ingredient.deleteAllRows").executeUpdate();
             em.createNamedQuery("DayPlan.deleteAllRows").executeUpdate();
             em.createNamedQuery("MenuPlan.deleteAllRows").executeUpdate();
             em.createNamedQuery("users.deleteAllRows").executeUpdate();
             u1 = new User("Mike", "Password123");
-            dayPlan = new DayPlan(2, 2);
             ing1 = new Ingredient(25, "Black pepper");
             ing2 = new Ingredient(500, "Chicken");
             ing3 = new Ingredient(1, "Salt");
+
+            r1 = new RecipeDTO("category 1", "Name 1", 40, 1, new String[]{"Do", "This", "Like", "That"},
+                    new IngredientDTO[]{new IngredientDTO(ing1)});
+            r2 = new RecipeDTO("category 2", "Name 2", 60, 2, new String[]{"Do", "That", "Like", "This"},
+                    new IngredientDTO[]{new IngredientDTO(ing2), new IngredientDTO(ing3)});
+
+            dayPlan = new DayPlan(r2.getId(), r2.getName(), 2);
             List<DayPlan> dayPlanList = Arrays.asList(new DayPlan[]{dayPlan});
             List<Ingredient> ingredientsList = Arrays.asList(new Ingredient[]{ing2, ing3});
             em.persist(u1);
@@ -90,11 +97,6 @@ public class MenuPlanFacadeTest {
                     highestMenuPlanID = menuPlan.getId();
                 }
             }
-
-            r1 = new RecipeDTO("category 1", "Name 1", 40, 1, new String[]{"Do", "This", "Like", "That"},
-                    new IngredientDTO[]{new IngredientDTO(ing1)});
-            r2 = new RecipeDTO("category 2", "Name 2", 60, 2, new String[]{"Do", "That", "Like", "This"},
-                    new IngredientDTO[]{new IngredientDTO(ing2), new IngredientDTO(ing3)});
 
         } finally {
             em.close();
@@ -166,12 +168,12 @@ public class MenuPlanFacadeTest {
                     .getSingleResult();
             int expectedDayPlansSize = dayPlans.length - amountOfDayPlans;
             assertEquals(expectedDayPlansSize, dbDayPlansSize);
-            
+
             long dbIngredientsSize = (long) em.createQuery("Select COUNT(i) from Ingredient i")
                     .getSingleResult();
             int expectedIngredientsSize = ingredients.length - amountofIngredients;
             assertEquals(expectedIngredientsSize, dbIngredientsSize);
-            
+
         } catch (Exception e) {
             fail("Something went wrong: " + e.getMessage());
         } finally {

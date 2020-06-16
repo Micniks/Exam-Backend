@@ -17,19 +17,30 @@ public class DayPlan implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int recipeID;
+    private String recipeName;
     private int numberOfServings;
 
     @ManyToOne
     private MenuPlan menuPlan;
 
-    public DayPlan(int recipe, int numberOfServings) {
-        this.recipeID = recipe;
+    public DayPlan(int recipeID, String recipeName, int numberOfServings) {
+        this.recipeID = recipeID;
+        this.recipeName = recipeName;
         this.numberOfServings = numberOfServings;
     }
 
-    public DayPlan(int id, int recipe, int numberOfServings) {
+    public String getRecipeName() {
+        return recipeName;
+    }
+
+    public void setRecipeName(String recipeName) {
+        this.recipeName = recipeName;
+    }
+
+    public DayPlan(int id, int recipeID, String recipeName, int numberOfServings) {
         this.id = id;
-        this.recipeID = recipe;
+        this.recipeID = recipeID;
+        this.recipeName = recipeName;
         this.numberOfServings = numberOfServings;
     }
 

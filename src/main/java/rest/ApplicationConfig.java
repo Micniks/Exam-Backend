@@ -14,10 +14,9 @@ public class ApplicationConfig extends Application {
     }
 
     /**
-     * Do not modify addRestResourceClasses() method.
-     * It is automatically populated with
-     * all resources defined in the project.
-     * If required, comment out calling this method in getClasses().
+     * Do not modify addRestResourceClasses() method. It is automatically
+     * populated with all resources defined in the project. If required, comment
+     * out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(cors.CorsRequestFilter.class);
@@ -27,10 +26,9 @@ public class ApplicationConfig extends Application {
         resources.add(rest.DemoResource.class);
         resources.add(rest.MenuPlanResource.class);
         resources.add(rest.RecipeResource.class);
-        resources.add(rest.RenameMeResource.class);
         resources.add(security.JWTAuthenticationFilter.class);
         resources.add(security.LoginEndpoint.class);
         resources.add(security.RolesAllowedFilter.class);
     }
-    
+
 }

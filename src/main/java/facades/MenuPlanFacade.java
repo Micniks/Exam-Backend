@@ -18,7 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 public class MenuPlanFacade {
-
+    
     private static MenuPlanFacade instance;
     private static EntityManagerFactory emf;
 
@@ -34,14 +34,14 @@ public class MenuPlanFacade {
         }
         return instance;
     }
-
+    
     private EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
-
+    
     private static final Gson GSON = new Gson();
     private static final RecipeFacade recipeFacade = RecipeFacade.getRecipeFacade(emf);
-
+    
     public MenuPlanDTO newMenuPlan(String username, String menuName) {
         EntityManager em = getEntityManager();
         try {
@@ -49,13 +49,16 @@ public class MenuPlanFacade {
             User user = em.find(User.class, username);
             MenuPlan newMenuPlan = new MenuPlan(user, menuName);
             em.persist(newMenuPlan);
+            if (!user.getMenuPlans().contains(newMenuPlan)) {
+                user.getMenuPlans().add(newMenuPlan);
+            }
             em.getTransaction().commit();
             return new MenuPlanDTO(newMenuPlan);
         } finally {
             em.close();
         }
     }
-
+    
     public void DeleteMenuPlan(String username, int menuPlanID) {
         EntityManager em = getEntityManager();
         try {
@@ -73,7 +76,7 @@ public class MenuPlanFacade {
             em.close();
         }
     }
-
+    
     public MenuPlanDTO addDayPlan(int menuPlanID, int numberOfServings, RecipeDTO recipe) throws NotFoundException {
         if (Objects.nonNull(recipe.getId()) && Objects.nonNull(recipe.getIngredient_list())) {
 
@@ -82,16 +85,21 @@ public class MenuPlanFacade {
             for (IngredientDTO ingredientDTO : recipe.getIngredient_list()) {
                 newIngredients.add(new Ingredient(ingredientDTO, numberOfServings));
             }
-
+            
             EntityManager em = getEntityManager();
             try {
                 em.getTransaction().begin();
                 //adding the dayplan to the menuplan
                 MenuPlan menuPlan = em.find(MenuPlan.class, menuPlanID);
-                DayPlan newDayPlan = new DayPlan(recipe.getId(), numberOfServings);
+                DayPlan newDayPlan = new DayPlan(recipe.getId(), recipe.getName(), numberOfServings);
                 em.persist(newDayPlan);
-                menuPlan.getDayPlans().add(newDayPlan);
-
+                if (!menuPlan.getDayPlans().contains(newDayPlan)) {
+                    menuPlan.getDayPlans().add(newDayPlan);
+                }
+                if (!Objects.equals(menuPlan, newDayPlan.getMenuPlan())) {
+                    newDayPlan.setMenuPlan(menuPlan);
+                }
+                
                 for (Ingredient newIngredient : newIngredients) {
                     boolean matchFound = false;
                     for (Ingredient ingredient : menuPlan.getShoppingList()) {
@@ -104,10 +112,15 @@ public class MenuPlanFacade {
                     }
                     if (!matchFound) {
                         em.persist(newIngredient);
-                        menuPlan.getShoppingList().add(newIngredient);
+                        if (!menuPlan.getShoppingList().contains(newIngredient)) {
+                            menuPlan.getShoppingList().add(newIngredient);
+                        }
+                        if (!Objects.equals(newIngredient.getMenuPlan(), menuPlan)) {
+                            newIngredient.setMenuPlan(menuPlan);
+                        }
                     }
                 }
-
+                
                 em.getTransaction().commit();
                 return new MenuPlanDTO(menuPlan);
             } finally {
@@ -117,7 +130,7 @@ public class MenuPlanFacade {
             throw new NotFoundException("The Recipe could not be fetched. Either the server is down, or nothing was found!");
         }
     }
-
+    
     public MenuPlansDTO getMenuPlans(String username) {
         EntityManager em = getEntityManager();
         try {
@@ -130,7 +143,7 @@ public class MenuPlanFacade {
             em.close();
         }
     }
-
+    
     public MenuPlansDTO getAllMenuPlans() {
         EntityManager em = getEntityManager();
         try {
@@ -142,5 +155,5 @@ public class MenuPlanFacade {
             em.close();
         }
     }
-
+    
 }

@@ -18,7 +18,7 @@ public class Ingredient implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
+
     private int amount;
     private String name;
     @ManyToOne
@@ -28,12 +28,12 @@ public class Ingredient implements Serializable {
         this.amount = amount;
         this.name = name;
     }
-    
+
     public Ingredient(IngredientDTO ingredient, int numberOfServings) {
         this.amount = ingredient.getAmount() * numberOfServings;
         this.name = ingredient.getName();
     }
-    
+
     public Ingredient(IngredientDTO ingredient) {
         this.amount = ingredient.getAmount();
         this.name = ingredient.getName();
@@ -63,7 +63,7 @@ public class Ingredient implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -71,5 +71,13 @@ public class Ingredient implements Serializable {
     public void setId(int id) {
         this.id = id;
     }
-    
+
+    public MenuPlan getMenuPlan() {
+        return menuPlan;
+    }
+
+    public void setMenuPlan(MenuPlan menuPlan) {
+        this.menuPlan = menuPlan;
+    }
+
 }

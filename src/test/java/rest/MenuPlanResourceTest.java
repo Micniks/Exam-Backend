@@ -16,6 +16,7 @@ import io.restassured.parsing.Parser;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.UriBuilder;
@@ -82,6 +83,7 @@ public class MenuPlanResourceTest {
     public void setUp() {
         EntityManager em = emf.createEntityManager();
         try {
+            
             em.getTransaction().begin();
             //Delete existing users and roles to get a "fresh" database
             em.createQuery("delete from Ingredient").executeUpdate();
@@ -105,10 +107,17 @@ public class MenuPlanResourceTest {
             em.persist(admin);
             em.persist(both);
 
-            dayPlan = new DayPlan(2, 2);
             ing1 = new Ingredient(25, "Black pepper");
             ing2 = new Ingredient(500, "Chicken");
             ing3 = new Ingredient(1, "Salt");
+            
+            r1 = new RecipeDTO("category 1", "Name 1", 40, 1, new String[]{"Do", "This", "Like", "That"},
+                    new IngredientDTO[]{new IngredientDTO(ing1)});
+            r2 = new RecipeDTO("category 2", "Name 2", 60, 2, new String[]{"Do", "That", "Like", "This"},
+                    new IngredientDTO[]{new IngredientDTO(ing2), new IngredientDTO(ing3)});
+            
+            dayPlan = new DayPlan(r2.getId(), r2.getName(), 2);
+            
             List<DayPlan> dayPlanList = Arrays.asList(new DayPlan[]{dayPlan});
             List<Ingredient> ingredientsList = Arrays.asList(new Ingredient[]{ing2, ing3});
             em.persist(dayPlan);
@@ -119,6 +128,19 @@ public class MenuPlanResourceTest {
             m2 = new MenuPlan(dayPlanList, user, ingredientsList, "Week 2");
             em.persist(m1);
             em.persist(m2);
+            
+            if(!user.getMenuPlans().contains(m1)){
+                user.getMenuPlans().add(m1);
+            }
+            if(!user.getMenuPlans().contains(m2)){
+                user.getMenuPlans().add(m2);
+            }
+            if(!Objects.equals(m1.getUser(), user)){
+                m1.setUser(user);
+            }
+            if(!Objects.equals(m2.getUser(), user)){
+                m2.setUser(user);
+            }
 
             System.out.println("Saved test data to database");
             em.getTransaction().commit();
@@ -134,10 +156,6 @@ public class MenuPlanResourceTest {
                 }
             }
 
-            r1 = new RecipeDTO("category 1", "Name 1", 40, 1, new String[]{"Do", "This", "Like", "That"},
-                    new IngredientDTO[]{new IngredientDTO(ing1)});
-            r2 = new RecipeDTO("category 2", "Name 2", 60, 2, new String[]{"Do", "That", "Like", "This"},
-                    new IngredientDTO[]{new IngredientDTO(ing2), new IngredientDTO(ing3)});
         } finally {
             em.close();
         }
@@ -175,7 +193,9 @@ public class MenuPlanResourceTest {
                 .get("/plan").then()
                 .statusCode(200)
                 .extract().body().as(MenuPlansDTO.class);
+        
         assertNotNull(result);
+        assertEquals(menuPlans.length, result.getMenuPlans().size());
     }
 
     @Test
@@ -189,13 +209,16 @@ public class MenuPlanResourceTest {
                 .get("/plan/all").then()
                 .statusCode(200)
                 .extract().body().as(MenuPlansDTO.class);
+        
         assertNotNull(result);
+        assertEquals(menuPlans.length, result.getMenuPlans().size());
     }
 
     @Test
     public void testAddNewDayPlan() {
         RecipeDTO recipe = r1;
         MenuPlan menuPlan = m2;
+        int dayPlanAmount = menuPlan.getDayPlans().size();
         login("user", "test");
         MenuPlanDTO result = given()
                 .contentType("application/json")
@@ -206,7 +229,9 @@ public class MenuPlanResourceTest {
                 .put("/plan?servings=3&menuPlanID=" + menuPlan.getId()).then()
                 .statusCode(200)
                 .extract().body().as(MenuPlanDTO.class);
+        
         assertNotNull(result);
+        assertEquals(dayPlanAmount, menuPlan.getDayPlans().size());
     }
 
     @Test
@@ -221,7 +246,18 @@ public class MenuPlanResourceTest {
                 .post("/plan").then()
                 .statusCode(200)
                 .extract().body().as(MenuPlanDTO.class);
-        assertNotNull(result);
+        
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            user = em.find(User.class, user.getUserName());
+            em.getTransaction().commit();
+            assertEquals(menuPlans.length+1, user.getMenuPlans().size());
+        } catch (Exception e){
+            fail("Something went wrong: " + e.getMessage());
+        } finally {
+            em.close();
+        }
     }
 
     @Test
@@ -235,6 +271,19 @@ public class MenuPlanResourceTest {
                 .when()
                 .delete("/plan/" + m1.getId()).then()
                 .statusCode(204);
+        
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            user = em.find(User.class, user.getUserName());
+            em.getTransaction().commit();
+            assertEquals(menuPlans.length-1, user.getMenuPlans().size());
+        } catch (Exception e){
+            fail("Something went wrong: " + e.getMessage());
+        } finally {
+            em.close();
+        }
+        
     }
 
 }
