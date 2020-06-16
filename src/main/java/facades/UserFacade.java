@@ -28,6 +28,17 @@ public class UserFacade {
         return instance;
     }
     
+    public User getSpecificUser(String username) {
+        EntityManager em = emf.createEntityManager();
+        User user;
+        try {
+            user = em.find(User.class, username);
+        } finally {
+            em.close();
+        }
+        return user;
+    }
+    
     /* used to search for a user and throws an exception if user either doesn't
     exist or the values are wrong */
     
